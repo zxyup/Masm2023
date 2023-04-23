@@ -4,7 +4,7 @@ dseg segment
 	max    db    50
 	act    db    0
 	str    db    50 dup(?)
-	result db    13,10,50 dup(?),13,10,'$'
+	result db    50 dup(?),13,10,'$'
 dseg ends
 cseg segment
 	      assume cs:cseg,ds:dseg,es:dseg
@@ -14,43 +14,49 @@ cseg segment
 	      mov    es,ax
 	      cld
 	      lea    si,str
-	      lea    di,result[2]
+	      lea    di,result
 
 	      lea    dx,mess
 	      mov    ah,09h
-	      int    21h
+	      int    21h;输出提示信息
 	      lea    dx,strin
 	      mov    ah,0ah
+	      int    21h;输入字符串
+		  mov    dl,13
+	      mov    ah,02
 	      int    21h
+	      mov    dl, 10
+	      mov    ah,02
+	      int    21h;换行
 	      mov    al,act
 	      cbw
 	      mov    cx,ax
 
 
 	next: 
-	      lodsb
+	      lodsb;提取字符
 	      cmp    al,'A'
 	      jb     non
 	      cmp    al,'Z'
 	      jbe    upper
 	      cmp    al,'a'
-	      je    non
+	      jb     non
 	      cmp    al,'z'
 	      jbe    lower
 	      jmp    non
 
-	lower:
+	lower:;小写字母
 	      sub    al,20h
 	      jmp    non
 
 
-	upper:
+	upper:;大写字母
 	      add    al,20h
 	      jmp    non
 
 
-	non:  
-	      stosb
+	non:  ;处理后和不用处理的字符
+	      stosb;存入缓冲区
 	      dec    cx
 	      jnz    next
 
@@ -62,7 +68,7 @@ cseg segment
 	      mov    result[si+2],'$'
 
 
-	      lea    dx,result
+	      lea    dx,result;输出
 	      mov    ah,09h
 	      int    21h
 	      mov    ah,4ch
